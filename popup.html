@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chuyển đổi văn bản tiếng Việt</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header-container">
+        <div>
+            <h1>Chuyển đổi văn bản</h1>
+        </div>
+        <div class="action-buttons">
+      <!-- Action buttons removed as requested -->
+    </div>
+    </div>
+    
+    <div class="text-container">
+        <textarea id="inputText" placeholder="Nhập hoặc dán văn bản vào đây..."></textarea>
+        <div class="stats">
+            Ký tự: <span id="charCount">0</span> | Từ: <span id="wordCount">0</span>
+        </div>
+    </div>
+    
+    <div class="tools-container">
+        <div class="tool-section">
+            <h3>Cơ bản</h3>
+            <div class="tool-buttons">
+                <button id="processCombined">Xử lí tổng</button>
+                <button id="removeAccents">Xóa dấu</button>
+                <button id="toLowercase">chữ thường</button>
+                <button id="toUppercase">CHỮ HOA</button>
+                <button id="toCapitalize">Chữ Hoa Đầu Từ</button>
+                <button id="toSentenceCase">Chữ hoa đầu câu</button>
+                <button id="trimWhitespace">Cắt khoảng trắng</button>
+                <button id="convertChars">Chuyển đổi kí tự</button>
+                <button id="removeWhitespace">Delete double</button>
+                <button id="removeSpacesInLines">Xoá khoảng trắng</button>
+                <button id="removeSpecialChars">Xóa ký tự đặc biệt</button>
+            </div>
+        </div>
+        
+        <div class="tool-section">
+            <h3>Chèn kí tự vào dòng</h3>
+            <div class="input-group">
+                <input type="text" id="prefixInput" placeholder="Kí tự thêm vào trước...">
+                <button id="addPrefix">Thêm vào trước</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="suffixInput" placeholder="Kí tự thêm vào sau...">
+                <button id="addSuffix">Thêm vào sau</button>
+            </div>
+        </div>
+        
+        <div class="tool-section">
+            <h3>Tìm kiếm và thay thế</h3>
+            <div class="search-replace-container">
+                <!-- Search row -->
+                <div class="search-row">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm...">
+                    <button id="searchBtn">Tìm</button>
+                </div>
+                
+                <!-- Replace row -->
+                <div class="replace-row">
+                    <input type="text" id="replaceInput" placeholder="Thay thế...">
+                    <button id="replaceBtn">Thay thế</button>
+                    <button id="replaceAllBtn">Thay thế tất cả</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

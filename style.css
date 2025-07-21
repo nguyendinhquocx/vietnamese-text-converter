@@ -1,0 +1,234 @@
+body {
+  width: 100%;
+  min-height: 100vh;
+  padding: 16px;
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+  margin: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.header-container .header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0;
+  color: #000000;
+  font-weight: 600;
+}
+
+h3 {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #000000;
+  font-weight: 600;
+}
+
+.textarea-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+textarea {
+  width: 100%;
+  height: 60vh;
+  min-height: 300px;
+  padding: 12px;
+  resize: vertical;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 14px;
+  box-sizing: border-box;
+  line-height: 1.5;
+  position: relative;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stats {
+  font-size: 12px;
+  color: #000000;
+  text-align: right;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-buttons button {
+  padding: 8px 16px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  background-color: #000000;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-buttons button:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.action-buttons button:active {
+  transform: translateY(1px);
+}
+
+button {
+  padding: 8px 16px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.tools-container {
+  margin-top: 16px;
+}
+
+.tool-section {
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tool-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.input-group {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.input-group:last-child {
+  margin-bottom: 0;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  margin-right: 8px;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.search-replace-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-row, .replace-row {
+  display: flex;
+  gap: 8px;
+}
+
+#searchInput, #replaceInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #000000;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+#searchInput:focus, #replaceInput:focus {
+  outline: none;
+  border-color: #000000;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.overlay-container {
+  position: relative;
+}
+
+.marked-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: auto;
+  pointer-events: none;
+  z-index: 2;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.highlight {
+  background-color: #ffff00;
+  box-shadow: 0 0 2px rgba(0,0,0,0.3);
+  animation: highlight-flash 0.5s ease-in-out;
+}
+
+.highlight.current {
+  background-color: #ffa500;
+  box-shadow: 0 0 4px rgba(255,165,0,0.7);
+}
+
+@keyframes highlight-flash {
+  0% { background-color: #ffff00; }
+  50% { background-color: #ffe066; }
+  100% { background-color: #ffff00; }
+}
+
+/* Dark mode removed as requested */
+
+/* Theme toggle removed as requested */
