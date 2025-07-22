@@ -282,4 +282,48 @@ button:active {
   gap: 8px;
 }
 
+.pinned-note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    position: relative;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    transition: border-color 0.2s ease;
+}
+
+.pinned-note-item:hover {
+    border-color: #007bff;
+}
+
+.pinned-note-content {
+    display: none; /* Hide content, only show title */
+}
+
+.pinned-note-title {
+    font-weight: bold;
+    font-size: 15px;
+    color: #222;
+    flex-grow: 1;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pinned-note-title-placeholder {
+    font-style: italic;
+    color: #666;
+    flex-grow: 1;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* Removed input-group styles as they are no longer needed */

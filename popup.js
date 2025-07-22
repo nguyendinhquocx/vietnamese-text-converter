@@ -248,11 +248,11 @@ document.addEventListener('DOMContentLoaded', function () {
         
         notesList.innerHTML = notes.map((note, index) => {
             const displayTitle = note.title ? escapeHtml(note.title) : '';
-            const displayContent = note.content.length > 100 ? note.content.substring(0, 100) + '...' : note.content;
+            const titleClass = note.title ? 'pinned-note-title' : 'pinned-note-title-placeholder';
+            const titleText = note.title ? displayTitle : 'Ghi chú không có tiêu đề';
             return `
-                <div class="pinned-note-item" data-index="${index}">
-                    ${displayTitle ? `<div class="pinned-note-title">${displayTitle}</div>` : ''}
-                    <div class="pinned-note-content" title="${escapeHtml(note.content)}">${escapeHtml(displayContent)}</div>
+                <div class="pinned-note-item" data-index="${index}" title="${escapeHtml(note.content)}">
+                    <div class="${titleClass}">${titleText}</div>
                     <div class="note-actions">
                         <button class="copy-note-btn" data-action="copy" data-index="${index}">Copy</button>
                         <button class="edit-btn" data-action="edit" data-index="${index}">Sửa</button>
@@ -331,24 +331,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // Edit note
     function editNote(index) {
         const noteItem = document.querySelector(`[data-index="${index}"]`);
-        const noteContent = noteItem.querySelector('.pinned-note-content');
         const currentNote = notes[index];
         
-        noteContent.innerHTML = `
-            <input type="text" class="note-edit-title" placeholder="Tên ghi chú (tùy chọn)" value="${escapeHtml(currentNote.title)}" style="margin-bottom: 4px; width: 100%;">
-            <textarea class="note-edit-input" style="width: 100%; height: 80px; resize: vertical;">${escapeHtml(currentNote.content)}</textarea>
+        noteItem.innerHTML = `
+            <div style="flex-grow: 1; margin-right: 10px;">
+                <input type="text" class="note-edit-title" placeholder="Tên ghi chú (tùy chọn)" value="${escapeHtml(currentNote.title)}" style="margin-bottom: 4px; width: 100%; box-sizing: border-box;">
+                <textarea class="note-edit-input" style="width: 100%; height: 80px; resize: vertical; box-sizing: border-box;">${escapeHtml(currentNote.content)}</textarea>
+            </div>
+            <div class="note-actions">
+                <button class="edit-btn" data-action="save" data-index="${index}">Lưu</button>
+                <button class="delete-btn" data-action="cancel" data-index="${index}">Hủy</button>
+            </div>
         `;
-        const editTitleInput = noteContent.querySelector('.note-edit-title');
-        const editInput = noteContent.querySelector('.note-edit-input');
-        
-        const actions = noteItem.querySelector('.note-actions');
-        actions.innerHTML = `
-            <button class="edit-btn" data-action="save" data-index="${index}">Lưu</button>
-            <button class="delete-btn" data-action="cancel" data-index="${index}">Hủy</button>
-        `;
+        const editTitleInput = noteItem.querySelector('.note-edit-title');
+        const editInput = noteItem.querySelector('.note-edit-input');
         
         // Add event listeners for save and cancel buttons
-        actions.querySelectorAll('button').forEach(button => {
+        noteItem.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', handleNoteAction);
         });
         
