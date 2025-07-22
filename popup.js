@@ -226,11 +226,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Ghi chú ghim functionality
     const noteInput = document.getElementById('noteInput');
+    const noteTitleInput = document.getElementById('noteTitleInput');
     const addNoteBtn = document.getElementById('addNoteBtn');
     const notesList = document.getElementById('notesList');
     
     // Load notes from localStorage
     let notes = JSON.parse(localStorage.getItem('pinnedNotes') || '[]');
+    
+    // Migrate old notes format to new format if needed
+    if (notes.length > 0 && typeof notes[0] === 'string') {
+        notes = notes.map(note => ({ title: '', content: note }));
+        localStorage.setItem('pinnedNotes', JSON.stringify(notes));
+    }
     
     // Display notes
     function displayNotes() {
@@ -239,18 +246,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         
-        notesList.innerHTML = notes.map((note, index) => `
-            <div class="note-item" data-index="${index}">
-                <div class="note-content">${escapeHtml(note)}</div>
-                <div class="note-actions">
-                    <button class="edit-btn" data-action="edit" data-index="${index}">Sửa</button>
-                    <button class="delete-btn" data-action="delete" data-index="${index}">Xóa</button>
+        notesList.innerHTML = notes.map((note, index) => {
+            const displayText = note.title ? note.title : (note.content.length > 100 ? note.content.substring(0, 100) + '...' : note.content);
+            return `
+                <div class="note-item" data-index="${index}">
+                    <div class="note-content" title="${escapeHtml(note.content)}">${escapeHtml(displayText)}</div>
+                    <div class="note-actions">
+                        <button class="copy-note-btn" data-action="copy" data-index="${index}">Copy</button>
+                        <button class="edit-btn" data-action="edit" data-index="${index}">Sửa</button>
+                        <button class="delete-btn" data-action="delete" data-index="${index}">Xóa</button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
         
-        // Add event listeners for edit and delete buttons
-        notesList.querySelectorAll('.edit-btn, .delete-btn').forEach(button => {
+        // Add event listeners for copy, edit and delete buttons
+        notesList.querySelectorAll('.copy-note-btn, .edit-btn, .delete-btn').forEach(button => {
             button.addEventListener('click', handleNoteAction);
         });
     }
@@ -265,20 +276,24 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add note
     function addNote() {
         const noteText = noteInput.value.trim();
+        const titleText = noteTitleInput.value.trim();
         if (noteText) {
-            notes.push(noteText);
+            notes.push({ title: titleText, content: noteText });
             localStorage.setItem('pinnedNotes', JSON.stringify(notes));
             noteInput.value = '';
+            noteTitleInput.value = '';
             displayNotes();
         }
     }
     
-    // Handle note actions (edit/delete)
+    // Handle note actions (copy/edit/delete)
     function handleNoteAction(e) {
         const action = e.target.dataset.action;
         const index = parseInt(e.target.dataset.index);
         
-        if (action === 'edit') {
+        if (action === 'copy') {
+            copyNote(index);
+        } else if (action === 'edit') {
             editNote(index);
         } else if (action === 'delete') {
             deleteNote(index);
@@ -289,13 +304,39 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     
+    // Copy note content to clipboard
+    function copyNote(index) {
+        const noteContent = notes[index].content;
+        navigator.clipboard.writeText(noteContent).then(() => {
+            // Visual feedback
+            const copyBtn = document.querySelector(`[data-action="copy"][data-index="${index}"]`);
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'Copied!';
+            copyBtn.style.backgroundColor = '#4CAF50';
+            copyBtn.style.color = 'white';
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.backgroundColor = '';
+                copyBtn.style.color = '';
+            }, 1000);
+        }).catch(err => {
+            console.error('Không thể copy ghi chú: ', err);
+            alert('Không thể copy ghi chú!');
+        });
+    }
+    
     // Edit note
     function editNote(index) {
         const noteItem = document.querySelector(`[data-index="${index}"]`);
         const noteContent = noteItem.querySelector('.note-content');
-        const currentText = notes[index];
+        const currentNote = notes[index];
         
-        noteContent.innerHTML = `<input type="text" class="note-edit-input" value="${escapeHtml(currentText)}" maxlength="200">`;
+        noteContent.innerHTML = `
+            <input type="text" class="note-edit-title" placeholder="Tên ghi chú (tùy chọn)" value="${escapeHtml(currentNote.title)}" style="margin-bottom: 4px; width: 100%;">
+            <input type="text" class="note-edit-input" value="${escapeHtml(currentNote.content)}" style="width: 100%;">
+        `;
+        const editTitleInput = noteContent.querySelector('.note-edit-title');
         const editInput = noteContent.querySelector('.note-edit-input');
         
         const actions = noteItem.querySelector('.note-actions');
@@ -323,11 +364,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Save edited note
     function saveNote(index) {
         const noteItem = document.querySelector(`[data-index="${index}"]`);
+        const editTitleInput = noteItem.querySelector('.note-edit-title');
         const editInput = noteItem.querySelector('.note-edit-input');
-        const newText = editInput.value.trim();
+        const newTitle = editTitleInput.value.trim();
+        const newContent = editInput.value.trim();
         
-        if (newText) {
-            notes[index] = newText;
+        if (newContent) {
+            notes[index] = { title: newTitle, content: newContent };
             localStorage.setItem('pinnedNotes', JSON.stringify(notes));
             displayNotes();
         } else {
@@ -370,23 +413,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         navigator.clipboard.writeText(text).then(() => {
-            // Visual feedback
-            const originalText = copyTextButton.textContent;
-            copyTextButton.textContent = 'Đã copy!';
-            copyTextButton.style.backgroundColor = '#4CAF50';
-            
-            setTimeout(() => {
-                copyTextButton.textContent = originalText;
-                copyTextButton.style.backgroundColor = '';
-            }, 1000);
+            alert('Đã copy văn bản!');
         }).catch(err => {
             console.error('Không thể copy văn bản: ', err);
             alert('Không thể copy văn bản!');
         });
     }
-    
-    // Add event listener for copy button
-    copyTextButton.addEventListener('click', copyTextToClipboard);
     
     // Improved paste handling for long text
     function pasteTextFromClipboard() {
@@ -409,19 +441,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Add event listener for paste button
-    pasteButton.addEventListener('click', pasteTextFromClipboard);
-    
-    // Thêm phím tắt Ctrl+Shift+V để dán văn bản
-    inputText.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.shiftKey && e.key === 'V') {
-            e.preventDefault();
-            pasteTextFromClipboard();
-        }
-        // Thêm phím tắt Ctrl+Shift+C để copy văn bản
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.shiftKey && e.key === 'C') {
             e.preventDefault();
             copyTextToClipboard();
+        }
+        if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+            e.preventDefault();
+            pasteTextFromClipboard();
         }
     });
 

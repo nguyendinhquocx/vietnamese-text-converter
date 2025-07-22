@@ -18,11 +18,7 @@
     <div class="text-container">
         <textarea id="inputText" placeholder="Nhập hoặc dán văn bản vào đây..."></textarea>
         <div class="stats">
-            <span>Ký tự: <span id="charCount">0</span> | Từ: <span id="wordCount">0</span></span>
-            <div class="text-actions">
-                <button id="paste" class="copy-btn">Paste</button>
-                <button id="copyText" class="copy-btn">Copy</button>
-            </div>
+            <span id="charCount">0 ký tự</span> | <span id="wordCount">0 từ</span>
         </div>
     </div>
     
@@ -51,7 +47,8 @@
     <div class="notes-section">
         <h3>Ghi chú ghim</h3>
         <div class="note-input-container">
-            <input type="text" id="noteInput" placeholder="Nhập ghi chú và nhấn Enter để lưu..." maxlength="200">
+            <input type="text" id="noteTitleInput" placeholder="Tiêu đề" class="note-title-input">
+            <input type="text" id="noteInput" placeholder="Ghi chú">
             <button id="addNoteBtn">Thêm</button>
         </div>
         <div id="notesList" class="notes-list">

@@ -90,10 +90,7 @@ textarea:focus {
   transform: translateY(1px) !important;
 }
 
-.text-actions {
-  display: flex;
-  gap: 4px;
-}
+
 
 .action-buttons {
   display: flex;
@@ -132,8 +129,22 @@ textarea:focus {
 
 .note-input-container {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
+}
+
+.note-input-container .note-title-input {
+    width: 40%;
+    padding: 6px 8px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 4px;
+    background-color: #ffffff;
+    color: #000000;
+    font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
+    box-sizing: border-box;
 }
 
 #noteInput {
@@ -187,6 +198,17 @@ textarea:focus {
     padding: 4px 8px;
     font-size: 12px;
     margin: 0;
+}
+
+.copy-btn {
+    background-color: #2196F3 !important;
+    color: #ffffff !important;
+    border: 1px solid #2196F3 !important;
+}
+
+.copy-btn:hover {
+    background-color: #1976D2 !important;
+    border-color: #1976D2 !important;
 }
 
 .edit-btn {
