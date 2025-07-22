@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const trimWhitespaceButton = document.getElementById('trimWhitespace');
     const convertCharsButton = document.getElementById('convertChars');
     const processCombinedButton = document.getElementById('processCombined');
+    const copyTextButton = document.getElementById('copyText');
 
     
     // Removed variables for deleted features
@@ -27,12 +28,22 @@ document.addEventListener('DOMContentLoaded', function () {
         updateTextStats();
     }
     
-    // Save text content to localStorage when it changes
+    // Save text content to localStorage when it changes (with size limit check)
     inputText.addEventListener('input', () => {
         updateTextStats();
         
-        // Save current text to localStorage
-        localStorage.setItem('textContent', inputText.value);
+        // Save current text to localStorage with size check
+        const textToSave = inputText.value;
+        try {
+            // Check if text is too large for localStorage (usually 5-10MB limit)
+            if (textToSave.length < 1000000) { // 1MB character limit
+                localStorage.setItem('textContent', textToSave);
+            } else {
+                console.warn('Text too large for localStorage, skipping save');
+            }
+        } catch (e) {
+            console.warn('Failed to save to localStorage:', e);
+        }
     });
     
 
@@ -350,16 +361,67 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial display
     displayNotes();
     
-    // Thêm phím tắt Ctrl+Shift+, để dán văn bản
+    // Copy text function
+    function copyTextToClipboard() {
+        const text = inputText.value;
+        if (text.trim() === '') {
+            alert('Không có văn bản để copy!');
+            return;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            // Visual feedback
+            const originalText = copyTextButton.textContent;
+            copyTextButton.textContent = 'Đã copy!';
+            copyTextButton.style.backgroundColor = '#4CAF50';
+            
+            setTimeout(() => {
+                copyTextButton.textContent = originalText;
+                copyTextButton.style.backgroundColor = '';
+            }, 1000);
+        }).catch(err => {
+            console.error('Không thể copy văn bản: ', err);
+            alert('Không thể copy văn bản!');
+        });
+    }
+    
+    // Add event listener for copy button
+    copyTextButton.addEventListener('click', copyTextToClipboard);
+    
+    // Improved paste handling for long text
+    function pasteTextFromClipboard() {
+        navigator.clipboard.readText().then(text => {
+            // Handle long text properly
+            inputText.value = text;
+            updateTextStats();
+            
+            // Save to localStorage if not too large
+            try {
+                if (text.length < 1000000) {
+                    localStorage.setItem('textContent', text);
+                }
+            } catch (e) {
+                console.warn('Failed to save pasted text to localStorage:', e);
+            }
+        }).catch(err => {
+            console.error('Không thể đọc clipboard: ', err);
+            alert('Không thể paste văn bản!');
+        });
+    }
+    
+    // Add event listener for paste button
+    pasteButton.addEventListener('click', pasteTextFromClipboard);
+    
+    // Thêm phím tắt Ctrl+Shift+V để dán văn bản
     inputText.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.shiftKey && e.key === '<') {
+        if (e.ctrlKey && e.shiftKey && e.key === 'V') {
             e.preventDefault();
-            navigator.clipboard.readText().then(text => {
-                inputText.value = text;
-                updateStats();
-            }).catch(err => {
-                console.error('Không thể đọc clipboard: ', err);
-            });
+            pasteTextFromClipboard();
+        }
+        // Thêm phím tắt Ctrl+Shift+C để copy văn bản
+        if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+            e.preventDefault();
+            copyTextToClipboard();
         }
     });
 
