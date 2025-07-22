@@ -2,7 +2,7 @@ body {
   width: 100%;
   min-height: 100vh;
   padding: 16px;
-  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
   background-color: #ffffff;
   color: #000000;
   margin: 0;
@@ -45,7 +45,7 @@ textarea {
   resize: vertical;
   border: 1px solid #000000;
   border-radius: 8px;
-  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
   background-color: #ffffff;
   color: #000000;
   font-size: 14px;
@@ -100,8 +100,9 @@ button {
   border-radius: 8px;
   background-color: #ffffff;
   color: #000000;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
+  font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
   cursor: pointer;
   transition: all 0.2s ease;
 }
