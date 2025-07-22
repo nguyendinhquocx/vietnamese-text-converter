@@ -94,6 +94,104 @@ textarea:focus {
   transform: translateY(1px);
 }
 
+/* Ghi chú ghim */
+.notes-section {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.note-input-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+#noteInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
+    box-sizing: border-box;
+}
+
+#noteInput:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+.notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.note-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    background-color: #ffffff;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
+}
+
+.note-content {
+    flex: 1;
+    margin-right: 8px;
+    word-break: break-word;
+}
+
+.note-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.note-actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin: 0;
+}
+
+.edit-btn {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+}
+
+.delete-btn {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+.note-edit-input {
+    flex: 1;
+    padding: 4px 8px;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
+    margin-right: 8px;
+}
+
+.empty-notes {
+    text-align: center;
+    color: #666666;
+    font-style: italic;
+    padding: 16px;
+}
+
 button {
   padding: 8px 16px;
   border: 1px solid #000000;

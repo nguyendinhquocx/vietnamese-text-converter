@@ -20,20 +20,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-focus on textarea when popup opens
     inputText.focus();
 
-    // Load saved text content from Chrome storage
-    chrome.storage.local.get(['textContent'], function(result) {
-        if (result.textContent) {
-            inputText.value = result.textContent;
-            updateTextStats();
-        }
-    });
+    // Load saved text content from localStorage
+    const savedText = localStorage.getItem('textContent');
+    if (savedText) {
+        inputText.value = savedText;
+        updateTextStats();
+    }
     
-    // Save text content to Chrome storage when it changes
+    // Save text content to localStorage when it changes
     inputText.addEventListener('input', () => {
         updateTextStats();
         
-        // Save current text to Chrome storage
-        chrome.storage.local.set({textContent: inputText.value});
+        // Save current text to localStorage
+        localStorage.setItem('textContent', inputText.value);
     });
     
 
@@ -214,16 +213,154 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Removed search and replace event listeners
 
+    // Ghi chú ghim functionality
+    const noteInput = document.getElementById('noteInput');
+    const addNoteBtn = document.getElementById('addNoteBtn');
+    const notesList = document.getElementById('notesList');
+    
+    // Load notes from localStorage
+    let notes = JSON.parse(localStorage.getItem('pinnedNotes') || '[]');
+    
+    // Display notes
+    function displayNotes() {
+        if (notes.length === 0) {
+            notesList.innerHTML = '<div class="empty-notes">Chưa có ghi chú nào được ghim</div>';
+            return;
+        }
+        
+        notesList.innerHTML = notes.map((note, index) => `
+            <div class="note-item" data-index="${index}">
+                <div class="note-content">${escapeHtml(note)}</div>
+                <div class="note-actions">
+                    <button class="edit-btn" data-action="edit" data-index="${index}">Sửa</button>
+                    <button class="delete-btn" data-action="delete" data-index="${index}">Xóa</button>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add event listeners for edit and delete buttons
+        notesList.querySelectorAll('.edit-btn, .delete-btn').forEach(button => {
+            button.addEventListener('click', handleNoteAction);
+        });
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Add note
+    function addNote() {
+        const noteText = noteInput.value.trim();
+        if (noteText) {
+            notes.push(noteText);
+            localStorage.setItem('pinnedNotes', JSON.stringify(notes));
+            noteInput.value = '';
+            displayNotes();
+        }
+    }
+    
+    // Handle note actions (edit/delete)
+    function handleNoteAction(e) {
+        const action = e.target.dataset.action;
+        const index = parseInt(e.target.dataset.index);
+        
+        if (action === 'edit') {
+            editNote(index);
+        } else if (action === 'delete') {
+            deleteNote(index);
+        } else if (action === 'save') {
+            saveNote(index);
+        } else if (action === 'cancel') {
+            cancelEdit(index);
+        }
+    }
+    
+    // Edit note
+    function editNote(index) {
+        const noteItem = document.querySelector(`[data-index="${index}"]`);
+        const noteContent = noteItem.querySelector('.note-content');
+        const currentText = notes[index];
+        
+        noteContent.innerHTML = `<input type="text" class="note-edit-input" value="${escapeHtml(currentText)}" maxlength="200">`;
+        const editInput = noteContent.querySelector('.note-edit-input');
+        
+        const actions = noteItem.querySelector('.note-actions');
+        actions.innerHTML = `
+            <button class="edit-btn" data-action="save" data-index="${index}">Lưu</button>
+            <button class="delete-btn" data-action="cancel" data-index="${index}">Hủy</button>
+        `;
+        
+        // Add event listeners for save and cancel buttons
+        actions.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', handleNoteAction);
+        });
+        
+        editInput.focus();
+        editInput.select();
+        
+        // Save on Enter
+        editInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveNote(index);
+            }
+        });
+    }
+    
+    // Save edited note
+    function saveNote(index) {
+        const noteItem = document.querySelector(`[data-index="${index}"]`);
+        const editInput = noteItem.querySelector('.note-edit-input');
+        const newText = editInput.value.trim();
+        
+        if (newText) {
+            notes[index] = newText;
+            localStorage.setItem('pinnedNotes', JSON.stringify(notes));
+            displayNotes();
+        } else {
+            cancelEdit(index);
+        }
+    }
+    
+    // Cancel edit
+    function cancelEdit(index) {
+        displayNotes();
+    }
+    
+    // Delete note
+    function deleteNote(index) {
+        if (confirm('Bạn có chắc muốn xóa ghi chú này?')) {
+            notes.splice(index, 1);
+            localStorage.setItem('pinnedNotes', JSON.stringify(notes));
+            displayNotes();
+        }
+    }
+    
+    // Event listeners
+    addNoteBtn.addEventListener('click', addNote);
+    
+    noteInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            addNote();
+        }
+    });
+    
+    // Initial display
+    displayNotes();
+    
     // Thêm phím tắt Ctrl+Shift+, để dán văn bản
     inputText.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.shiftKey && e.key === ',') {
+        if (e.ctrlKey && e.shiftKey && e.key === '<') {
             e.preventDefault();
             navigator.clipboard.readText().then(text => {
                 inputText.value = text;
-                updateTextStats();
+                updateStats();
             }).catch(err => {
-                console.error('Lỗi khi đọc từ bộ nhớ tạm: ', err);
+                console.error('Không thể đọc clipboard: ', err);
             });
         }
     });
+
 });
