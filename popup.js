@@ -247,10 +247,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         notesList.innerHTML = notes.map((note, index) => {
-            const displayText = note.title ? note.title : (note.content.length > 100 ? note.content.substring(0, 100) + '...' : note.content);
+            const displayTitle = note.title ? escapeHtml(note.title) : '';
+            const displayContent = note.content.length > 100 ? note.content.substring(0, 100) + '...' : note.content;
             return `
-                <div class="note-item" data-index="${index}">
-                    <div class="note-content" title="${escapeHtml(note.content)}">${escapeHtml(displayText)}</div>
+                <div class="pinned-note-item" data-index="${index}">
+                    ${displayTitle ? `<div class="pinned-note-title">${displayTitle}</div>` : ''}
+                    <div class="pinned-note-content" title="${escapeHtml(note.content)}">${escapeHtml(displayContent)}</div>
                     <div class="note-actions">
                         <button class="copy-note-btn" data-action="copy" data-index="${index}">Copy</button>
                         <button class="edit-btn" data-action="edit" data-index="${index}">Sửa</button>
@@ -329,12 +331,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Edit note
     function editNote(index) {
         const noteItem = document.querySelector(`[data-index="${index}"]`);
-        const noteContent = noteItem.querySelector('.note-content');
+        const noteContent = noteItem.querySelector('.pinned-note-content');
         const currentNote = notes[index];
         
         noteContent.innerHTML = `
             <input type="text" class="note-edit-title" placeholder="Tên ghi chú (tùy chọn)" value="${escapeHtml(currentNote.title)}" style="margin-bottom: 4px; width: 100%;">
-            <input type="text" class="note-edit-input" value="${escapeHtml(currentNote.content)}" style="width: 100%;">
+            <textarea class="note-edit-input" style="width: 100%; height: 80px; resize: vertical;">${escapeHtml(currentNote.content)}</textarea>
         `;
         const editTitleInput = noteContent.querySelector('.note-edit-title');
         const editInput = noteContent.querySelector('.note-edit-input');
@@ -353,9 +355,9 @@ document.addEventListener('DOMContentLoaded', function () {
         editInput.focus();
         editInput.select();
         
-        // Save on Enter
+        // Save on Ctrl+Enter for textarea
         editInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && e.ctrlKey) {
                 saveNote(index);
             }
         });
@@ -396,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
     addNoteBtn.addEventListener('click', addNote);
     
     noteInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && e.ctrlKey) {
             addNote();
         }
     });
