@@ -43,7 +43,7 @@ textarea {
   min-height: 300px;
   padding: 12px;
   resize: vertical;
-  border: 1px solid #000000;
+  border: none;
   border-radius: 8px;
   font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
   background-color: #ffffff;
@@ -52,12 +52,16 @@ textarea {
   box-sizing: border-box;
   line-height: 1.5;
   position: relative;
+  transition: background-color 0.2s ease;
+}
+
+textarea:hover {
+  background-color: #f8f8f8;
 }
 
 textarea:focus {
   outline: none;
-  border-color: #000000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background-color: #ffffff;
 }
 
 .stats {
@@ -99,10 +103,10 @@ textarea:focus {
 
 .action-buttons button {
   padding: 8px 16px;
-  border: 1px solid #000000;
+  border: none;
   border-radius: 8px;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #000000;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -110,8 +114,7 @@ textarea:focus {
 }
 
 .action-buttons button:hover {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #f0f0f0;
 }
 
 .action-buttons button:active {
@@ -122,7 +125,7 @@ textarea:focus {
 .notes-section {
     margin-top: 24px;
     padding: 16px;
-    border: 1px solid #000000;
+    border: none;
     border-radius: 8px;
     background-color: #ffffff;
 }
@@ -137,7 +140,7 @@ textarea:focus {
 .note-input-container .note-title-input {
     width: 100%;
     padding: 6px 8px;
-    border: 1px solid #000000;
+    border: none;
     border-radius: 8px;
     font-size: 13px;
     margin-bottom: 4px;
@@ -145,24 +148,38 @@ textarea:focus {
     color: #000000;
     font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
     box-sizing: border-box;
+    transition: background-color 0.2s ease;
+}
+
+.note-input-container .note-title-input:hover {
+    background-color: #f8f8f8;
+}
+
+.note-input-container .note-title-input:focus {
+    background-color: #ffffff;
+    outline: none;
 }
 
 #noteInput {
     flex: 1;
     padding: 8px 12px;
-    border: 1px solid #000000;
+    border: none;
     border-radius: 8px;
     background-color: #ffffff;
     color: #000000;
     font-size: 14px;
     font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
     box-sizing: border-box;
+    transition: background-color 0.2s ease;
+}
+
+#noteInput:hover {
+    background-color: #f8f8f8;
 }
 
 #noteInput:focus {
     outline: none;
-    border-color: #000000;
-    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+    background-color: #ffffff;
 }
 
 .notes-list {
@@ -176,7 +193,7 @@ textarea:focus {
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    border: 1px solid #000000;
+    border: none;
     border-radius: 8px;
     background-color: #ffffff;
     font-size: 14px;
@@ -201,37 +218,55 @@ textarea:focus {
 }
 
 .copy-btn {
-    background-color: #2196F3 !important;
-    color: #ffffff !important;
-    border: 1px solid #2196F3 !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
 }
 
 .copy-btn:hover {
-    background-color: #1976D2 !important;
-    border-color: #1976D2 !important;
+    background-color: #f0f0f0 !important;
 }
 
 .edit-btn {
     background-color: #ffffff !important;
     color: #000000 !important;
-    border: 1px solid #000000 !important;
+    border: none !important;
+}
+
+.edit-btn:hover {
+    background-color: #f0f0f0 !important;
 }
 
 .delete-btn {
-    background-color: #000000 !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+}
+
+.delete-btn:hover {
+    background-color: #f0f0f0 !important;
 }
 
 .note-edit-input {
     flex: 1;
     padding: 4px 8px;
-    border: 1px solid #000000;
+    border: none;
     border-radius: 4px;
     background-color: #ffffff;
     color: #000000;
     font-size: 14px;
     font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
     margin-right: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.note-edit-input:hover {
+    background-color: #f8f8f8;
+}
+
+.note-edit-input:focus {
+    background-color: #ffffff;
+    outline: none;
 }
 
 .empty-notes {
@@ -243,7 +278,7 @@ textarea:focus {
 
 button {
   padding: 8px 16px;
-  border: 1px solid #000000;
+  border: none;
   border-radius: 8px;
   background-color: #ffffff;
   color: #000000;
@@ -255,8 +290,7 @@ button {
 }
 
 button:hover {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #f0f0f0;
 }
 
 button:active {
@@ -269,11 +303,10 @@ button:active {
 
 .tool-section {
   background-color: #ffffff;
-  border: 1px solid #000000;
+  border: none;
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .tool-buttons {
@@ -286,19 +319,19 @@ button:active {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #f9f9f9;
-    border: 2px solid #ddd;
+    background-color: #ffffff;
+    border: none;
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 8px;
     position: relative;
     word-wrap: break-word;
     white-space: pre-wrap;
-    transition: border-color 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .pinned-note-item:hover {
-    border-color: #007bff;
+    background-color: #f8f8f8;
 }
 
 .pinned-note-content {
