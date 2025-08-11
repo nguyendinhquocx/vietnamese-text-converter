@@ -26,11 +26,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (savedText) {
         inputText.value = savedText;
         updateTextStats();
+        displayDownloadOptions(); // Show download options if there's saved text
     }
     
     // Save text content to localStorage when it changes (with size limit check)
     inputText.addEventListener('input', () => {
         updateTextStats();
+        
+        // Display download options
+        displayDownloadOptions();
         
         // Save current text to localStorage with size check
         const textToSave = inputText.value;
@@ -146,6 +150,76 @@ document.addEventListener('DOMContentLoaded', function () {
         result = removeWhitespace(result);
         
         return result;
+    }
+
+    // Function to download file with specified format
+    function downloadFile(content, format) {
+        if (!content.trim()) {
+            alert('Không có nội dung để tải xuống!');
+            return;
+        }
+
+        const fileExtensions = {
+            'TXT': 'txt',
+            'JS': 'js', 
+            'HTML': 'html',
+            'CSS': 'css',
+            'JSON': 'json',
+            'MD': 'md',
+            'TSX': 'tsx',
+            'TS': 'ts',
+            'PY': 'py',
+            'JAVA': 'java',
+            'SQL': 'sql',
+            'XML': 'xml',
+            'PHP': 'php',
+            'CSV': 'csv'
+        };
+
+        const extension = fileExtensions[format] || 'txt';
+        const fileName = `document.${extension}`;
+        
+        // Create blob and download
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Function to display download options
+    function displayDownloadOptions() {
+        const suggestionsContainer = document.getElementById('languageSuggestions');
+        const content = inputText.value.trim();
+        
+        if (!content) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        suggestionsContainer.style.display = 'block';
+        
+        const downloadFormats = ['TXT', 'JS', 'HTML', 'CSS', 'JSON', 'MD', 'TS', 'TSX', 'PY', 'JAVA', 'SQL', 'XML', 'PHP', 'CSV'];
+        
+        const downloadButtons = downloadFormats.map(format => 
+            `<button class="download-btn" data-format="${format}">${format}</button>`
+        ).join('');
+        
+        suggestionsContainer.innerHTML = `
+            <div class="suggestions-list">${downloadButtons}</div>
+        `;
+
+        // Add event listeners to download buttons
+        suggestionsContainer.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const format = e.target.dataset.format;
+                downloadFile(content, format);
+            });
+        });
     }
 
     // Removed search and highlight functions
@@ -427,6 +501,9 @@ document.addEventListener('DOMContentLoaded', function () {
             // Handle long text properly
             inputText.value = text;
             updateTextStats();
+            
+            // Display download options for pasted content
+            displayDownloadOptions();
             
             // Save to localStorage if not too large
             try {
