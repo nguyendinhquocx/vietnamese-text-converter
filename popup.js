@@ -163,6 +163,47 @@ document.addEventListener('DOMContentLoaded', function () {
         return text.replace(regex, replaceText);
     }
 
+    // Function to convert CSV to JSON
+    function csvToJson(csvText) {
+        if (!csvText.trim()) return '';
+
+        try {
+            // Split into lines and remove empty lines
+            const lines = csvText.trim().split('\n').filter(line => line.trim());
+            if (lines.length < 2) return '[]'; // Need at least header + 1 row
+
+            // Parse header row - split by tabs or multiple spaces
+            const headers = lines[0].split(/\t+|\s{2,}/).map(h => h.trim()).filter(h => h);
+
+            // Parse data rows
+            const jsonData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const row = lines[i].split(/\t+|\s{2,}/).map(cell => cell.trim());
+                const rowObject = {};
+
+                // Map each cell to corresponding header
+                headers.forEach((header, index) => {
+                    let value = row[index] || '';
+
+                    // Try to convert numbers
+                    if (value && !isNaN(value.replace(/,/g, ''))) {
+                        const numValue = parseFloat(value.replace(/,/g, ''));
+                        rowObject[header] = isNaN(numValue) ? value : numValue;
+                    } else {
+                        rowObject[header] = value;
+                    }
+                });
+
+                jsonData.push(rowObject);
+            }
+
+            return JSON.stringify(jsonData, null, 2);
+        } catch (error) {
+            console.error('CSV parsing error:', error);
+            return 'Lỗi: Không thể parse CSV. Vui lòng kiểm tra format dữ liệu.';
+        }
+    }
+
     // Function to download file with specified format
     function downloadFile(content, format) {
         if (!content.trim()) {
@@ -214,23 +255,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
         suggestionsContainer.style.display = 'block';
         
-        const downloadFormats = ['TXT', 'JS', 'HTML', 'CSS', 'JSON', 'MD', 'TS', 'TSX', 'PY', 'JAVA', 'SQL', 'XML', 'PHP', 'CSV'];
-        
-        const downloadButtons = downloadFormats.map(format => 
+        const downloadFormats = ['JSON', 'TXT', 'JS', 'HTML', 'CSS', 'MD', 'TS', 'TSX', 'PY', 'JAVA', 'SQL', 'XML', 'PHP', 'CSV'];
+
+        // Create CSV → JSON converter button first
+        const csvToJsonButton = `<button class="download-btn csv-to-json-btn" data-action="csvToJson">CSV → JSON</button>`;
+
+        const downloadButtons = downloadFormats.map(format =>
             `<button class="download-btn" data-format="${format}">${format}</button>`
         ).join('');
-        
+
         suggestionsContainer.innerHTML = `
-            <div class="suggestions-list">${downloadButtons}</div>
+            <div class="suggestions-list">${csvToJsonButton}${downloadButtons}</div>
         `;
 
         // Add event listeners to download buttons
-        suggestionsContainer.querySelectorAll('.download-btn').forEach(btn => {
+        suggestionsContainer.querySelectorAll('.download-btn[data-format]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const format = e.target.dataset.format;
                 downloadFile(content, format);
             });
         });
+
+        // Add event listener for CSV → JSON converter
+        const csvConverterBtn = suggestionsContainer.querySelector('[data-action="csvToJson"]');
+        if (csvConverterBtn) {
+            csvConverterBtn.addEventListener('click', () => {
+                if (!inputText.value.trim()) {
+                    alert('Vui lòng nhập dữ liệu CSV để chuyển đổi!');
+                    return;
+                }
+
+                const jsonResult = csvToJson(inputText.value);
+                inputText.value = jsonResult;
+                updateTextStats();
+
+                // Save to localStorage
+                try {
+                    if (jsonResult.length < 1000000) {
+                        localStorage.setItem('textContent', jsonResult);
+                    }
+                } catch (e) {
+                    console.warn('Failed to save to localStorage:', e);
+                }
+            });
+        }
     }
 
     // Removed search and highlight functions
@@ -293,6 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
         inputText.value = removeSpacesInLines(text);
         updateTextStats();
     });
+
 
     // Removed search and replace event listeners
 
