@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Chuyển đổi văn bản tiếng Việt</title>
+    <title></title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +25,14 @@
             <!-- Download buttons will be populated by JavaScript -->
         </div>
     </div>
-    
+
+    <!-- Pinned notes display section - moved above tools -->
+    <div class="pinned-notes-display" id="pinnedNotesDisplay">
+        <div id="notesList" class="notes-list">
+            <!-- Danh sách ghi chú sẽ được hiển thị ở đây -->
+        </div>
+    </div>
+
     <div class="tools-container">
         <div class="tool-section">
             <div class="tool-buttons">
@@ -42,21 +49,18 @@
                 <button id="removeSpecialChars">Xóa ký tự đặc biệt</button>
             </div>
         </div>
-        
+
         <!-- Removed 'Chèn kí tự vào dòng' and 'Tìm kiếm và thay thế' sections as requested -->
     </div>
     </div>
 
-    <!-- Ghi chú ghim -->
+    <!-- Add note section - stays at bottom -->
     <div class="notes-section">
         <h3>Ghi chú ghim</h3>
         <div class="note-input-container">
             <input type="text" id="noteTitleInput" placeholder="Tiêu đề" class="note-title-input">
             <textarea id="noteInput" placeholder="Ghi chú" class="note-input"></textarea>
             <button id="addNoteBtn">Thêm</button>
-        </div>
-        <div id="notesList" class="notes-list">
-            <!-- Danh sách ghi chú sẽ được hiển thị ở đây -->
         </div>
     </div>
 

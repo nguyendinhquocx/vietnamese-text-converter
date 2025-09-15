@@ -165,7 +165,13 @@ textarea:focus {
   transform: translateY(1px);
 }
 
-/* Ghi chú ghim */
+/* Pinned notes display section - above tools */
+.pinned-notes-display {
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+/* Ghi chú ghim - add note section at bottom */
 .notes-section {
     margin-top: 24px;
     padding: 16px;
