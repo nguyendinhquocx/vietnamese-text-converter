@@ -272,7 +272,9 @@ document.addEventListener('DOMContentLoaded', function () {
         suggestionsContainer.querySelectorAll('.download-btn[data-format]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const format = e.target.dataset.format;
-                downloadFile(content, format);
+                // Use current textarea content, not cached content
+                const currentContent = inputText.value;
+                downloadFile(currentContent, format);
             });
         });
 
