@@ -4,14 +4,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const wordCount = document.getElementById('wordCount');
     const pasteButton = document.getElementById('paste');
     const removeAccentsButton = document.getElementById('removeAccents');
-    const removeSpecialCharsButton = document.getElementById('removeSpecialChars');
     const removeWhitespaceButton = document.getElementById('removeWhitespace');
     const removeSpacesInLinesButton = document.getElementById('removeSpacesInLines');
     const toLowercaseButton = document.getElementById('toLowercase');
     const resetButton = document.getElementById('reset');
     const copyButton = document.getElementById('copy');
     const trimWhitespaceButton = document.getElementById('trimWhitespace');
-    const convertCharsButton = document.getElementById('convertChars');
     const processCombinedButton = document.getElementById('processCombined');
     const copyTextButton = document.getElementById('copyText');
 
@@ -244,12 +242,6 @@ document.addEventListener('DOMContentLoaded', function () {
         updateTextStats();
     });
 
-    removeSpecialCharsButton.addEventListener('click', () => {
-        const text = inputText.value;
-        inputText.value = removeSpecialCharacters(text);
-        updateTextStats();
-    });
-
     removeWhitespaceButton.addEventListener('click', () => {
         const text = inputText.value;
         inputText.value = removeWhitespace(text);
@@ -285,13 +277,6 @@ document.addEventListener('DOMContentLoaded', function () {
     trimWhitespaceButton.addEventListener('click', () => {
         const text = inputText.value;
         inputText.value = text.trim();
-        updateTextStats();
-    });
-
-    // Add event listener for the new convert characters button (fixed)
-    convertCharsButton.addEventListener('click', () => {
-        const text = inputText.value;
-        inputText.value = convertCharsToSpaces(text);
         updateTextStats();
     });
 
