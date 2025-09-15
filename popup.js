@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const processCombinedButton = document.getElementById('processCombined');
     const copyTextButton = document.getElementById('copyText');
 
+    // Find and Replace elements
+    const findInput = document.getElementById('findInput');
+    const replaceInput = document.getElementById('replaceInput');
+
     
     // Removed variables for deleted features
 
@@ -148,8 +152,17 @@ document.addEventListener('DOMContentLoaded', function () {
         result = convertCharsToSpaces(result);
         // 5. Remove double whitespace
         result = removeWhitespace(result);
-        
+
         return result;
+    }
+
+    // Function to replace all occurrences of a string
+    function replaceAllText(text, findText, replaceText) {
+        if (!findText) return text;
+        // Use global replace with escaped special regex characters
+        const escapedFind = findText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedFind, 'g');
+        return text.replace(regex, replaceText);
     }
 
     // Function to download file with specified format
@@ -528,6 +541,54 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.ctrlKey && e.shiftKey && e.key === 'V') {
             e.preventDefault();
             pasteTextFromClipboard();
+        }
+    });
+
+    // Find and Replace functionality - improved logic
+    function performFindReplace() {
+        const findText = findInput.value;
+        const replaceText = replaceInput.value;
+        const currentText = inputText.value;
+
+        if (!findText.trim()) {
+            alert('Vui lòng nhập text cần tìm!');
+            findInput.focus();
+            return;
+        }
+
+        // Logic: If replaceText is empty, delete found text (replace with empty string)
+        const actualReplaceText = replaceText || '';
+        const newText = replaceAllText(currentText, findText, actualReplaceText);
+
+        if (newText === currentText) {
+            alert('Không tìm thấy text để thay thế!');
+        } else {
+            inputText.value = newText;
+            updateTextStats();
+            // Clear inputs after successful operation
+            findInput.value = '';
+            replaceInput.value = '';
+            // Save to localStorage
+            try {
+                if (newText.length < 1000000) {
+                    localStorage.setItem('textContent', newText);
+                }
+            } catch (e) {
+                console.warn('Failed to save to localStorage:', e);
+            }
+        }
+    }
+
+    // Enter key support for find and replace
+    findInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performFindReplace();
+        }
+    });
+
+    replaceInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performFindReplace();
         }
     });
 
