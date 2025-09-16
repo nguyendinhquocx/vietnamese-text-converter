@@ -54,15 +54,12 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
 
-    // Function to update character and word count
+    // Function to update character count
     function updateTextStats() {
         const text = inputText.value;
         const charLength = text.length; // Đếm số ký tự (bao gồm khoảng trắng)
-        const words = text.trim().split(/\s+/).filter(word => word.length > 0); // Đếm số từ
-        const wordLength = text.trim() === '' ? 0 : words.length;
 
         charCount.textContent = charLength;
-        wordCount.textContent = wordLength;
     }
 
     updateTextStats(); // Initial update
