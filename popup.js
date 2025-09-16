@@ -260,12 +260,15 @@ document.addEventListener('DOMContentLoaded', function () {
         // Create CSV → JSON converter button first
         const csvToJsonButton = `<button class="download-btn csv-to-json-btn" data-action="csvToJson">CSV → JSON</button>`;
 
+        // Create Copy button
+        const copyButton = `<button class="download-btn copy-all-btn" data-action="copyAll">COPY</button>`;
+
         const downloadButtons = downloadFormats.map(format =>
             `<button class="download-btn" data-format="${format}">${format}</button>`
         ).join('');
 
         suggestionsContainer.innerHTML = `
-            <div class="suggestions-list">${csvToJsonButton}${downloadButtons}</div>
+            <div class="suggestions-list">${csvToJsonButton}${copyButton}${downloadButtons}</div>
         `;
 
         // Add event listeners to download buttons
@@ -298,6 +301,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 } catch (e) {
                     console.warn('Failed to save to localStorage:', e);
+                }
+            });
+        }
+
+        // Add event listener for Copy All button
+        const copyAllBtn = suggestionsContainer.querySelector('[data-action="copyAll"]');
+        if (copyAllBtn) {
+            copyAllBtn.addEventListener('click', () => {
+                const textToCopy = inputText.value;
+                if (textToCopy.trim()) {
+                    navigator.clipboard.writeText(textToCopy).catch(err => {
+                        console.error('Copy failed:', err);
+                    });
                 }
             });
         }
