@@ -23,6 +23,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-focus on textarea when popup opens
     inputText.focus();
 
+    // Helper function for button scale effect
+    function addButtonEffect(button) {
+        if (button) {
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 150);
+        }
+    }
+
     // Load saved text content from localStorage
     const savedText = localStorage.getItem('textContent');
     if (savedText) {
@@ -201,6 +211,27 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Function to convert GitHub link to GitHub Pages link
+    function convertGithubToPages(text) {
+        const lines = text.split('\n');
+        const convertedLines = lines.map(line => {
+            const trimmedLine = line.trim();
+
+            // Check if line contains a GitHub blob URL
+            const githubRegex = /https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)/;
+            const match = trimmedLine.match(githubRegex);
+
+            if (match) {
+                const [, username, repo, branch, path] = match;
+                return `https://${username}.github.io/${repo}/${path}`;
+            }
+
+            return line; // Return original line if no match
+        });
+
+        return convertedLines.join('\n');
+    }
+
     // Function to download file with specified format
     function downloadFile(content, format) {
         if (!content.trim()) {
@@ -210,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const fileExtensions = {
             'TXT': 'txt',
-            'JS': 'js', 
+            'JS': 'js',
             'HTML': 'html',
             'CSS': 'css',
             'JSON': 'json',
@@ -218,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'TSX': 'tsx',
             'TS': 'ts',
             'PY': 'py',
-            'JAVA': 'java',
             'SQL': 'sql',
             'XML': 'xml',
             'PHP': 'php',
@@ -252,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         suggestionsContainer.style.display = 'block';
         
-        const downloadFormats = ['JSON', 'TXT', 'JS', 'HTML', 'CSS', 'MD', 'TS', 'TSX', 'PY', 'JAVA', 'SQL', 'XML', 'PHP', 'CSV'];
+        const downloadFormats = ['JSON', 'TXT', 'JS', 'HTML', 'CSS', 'MD', 'TS', 'TSX', 'PY', 'SQL', 'XML', 'PHP', 'CSV'];
 
         // Create CSV → JSON converter button first
         const csvToJsonButton = `<button class="download-btn csv-to-json-btn" data-action="csvToJson">CSV → JSON</button>`;
@@ -260,18 +290,23 @@ document.addEventListener('DOMContentLoaded', function () {
         // Create Copy button
         const copyButton = `<button class="download-btn copy-all-btn" data-action="copyAll">COPY</button>`;
 
+        // Create Github button
+        const githubButton = `<button class="download-btn github-btn" data-action="github">Github</button>`;
+
         const downloadButtons = downloadFormats.map(format =>
             `<button class="download-btn" data-format="${format}">${format}</button>`
         ).join('');
 
         suggestionsContainer.innerHTML = `
-            <div class="suggestions-list">${csvToJsonButton}${copyButton}${downloadButtons}</div>
+            <div class="suggestions-list">${csvToJsonButton}${copyButton}${githubButton}${downloadButtons}</div>
         `;
 
         // Add event listeners to download buttons
         suggestionsContainer.querySelectorAll('.download-btn[data-format]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const format = e.target.dataset.format;
+                // Add button effect
+                addButtonEffect(e.target);
                 // Use current textarea content, not cached content
                 const currentContent = inputText.value;
                 downloadFile(currentContent, format);
@@ -286,6 +321,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     alert('Vui lòng nhập dữ liệu CSV để chuyển đổi!');
                     return;
                 }
+
+                // Add button effect
+                addButtonEffect(csvConverterBtn);
 
                 const jsonResult = csvToJson(inputText.value);
                 inputText.value = jsonResult;
@@ -308,9 +346,41 @@ document.addEventListener('DOMContentLoaded', function () {
             copyAllBtn.addEventListener('click', () => {
                 const textToCopy = inputText.value;
                 if (textToCopy.trim()) {
+                    // Add button effect
+                    addButtonEffect(copyAllBtn);
                     navigator.clipboard.writeText(textToCopy).catch(err => {
                         console.error('Copy failed:', err);
                     });
+                }
+            });
+        }
+
+        // Add event listener for Github button
+        const githubBtn = suggestionsContainer.querySelector('[data-action="github"]');
+        if (githubBtn) {
+            githubBtn.addEventListener('click', () => {
+                const originalText = inputText.value;
+                if (originalText.trim()) {
+                    const convertedText = convertGithubToPages(originalText);
+                    inputText.value = convertedText;
+                    updateTextStats();
+
+                    // Copy converted text to clipboard
+                    navigator.clipboard.writeText(convertedText).catch(err => {
+                        console.error('Copy failed:', err);
+                    });
+
+                    // Add button effect
+                    addButtonEffect(githubBtn);
+
+                    // Save to localStorage
+                    try {
+                        if (convertedText.length < 1000000) {
+                            localStorage.setItem('textContent', convertedText);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to save to localStorage:', e);
+                    }
                 }
             });
         }
@@ -320,12 +390,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Event listeners for buttons
     removeAccentsButton.addEventListener('click', () => {
+        addButtonEffect(removeAccentsButton);
         const text = inputText.value;
         inputText.value = removeVietnameseAccents(text);
         updateTextStats();
     });
 
     removeWhitespaceButton.addEventListener('click', () => {
+        addButtonEffect(removeWhitespaceButton);
         const text = inputText.value;
         inputText.value = removeWhitespace(text);
         updateTextStats();
@@ -334,30 +406,35 @@ document.addEventListener('DOMContentLoaded', function () {
     // Removed prefix/suffix event listeners
 
     toLowercaseButton.addEventListener('click', () => {
+        addButtonEffect(toLowercaseButton);
         const text = inputText.value;
         inputText.value = text.toLowerCase();
         updateTextStats();
     });
 
     document.getElementById('toUppercase').addEventListener('click', () => {
+        addButtonEffect(document.getElementById('toUppercase'));
         const text = inputText.value;
         inputText.value = text.toUpperCase();
         updateTextStats();
     });
 
     document.getElementById('toCapitalize').addEventListener('click', () => {
+        addButtonEffect(document.getElementById('toCapitalize'));
         const text = inputText.value;
         inputText.value = text.replace(/\b\w/g, char => char.toUpperCase());
         updateTextStats();
     });
 
     document.getElementById('toSentenceCase').addEventListener('click', () => {
+        addButtonEffect(document.getElementById('toSentenceCase'));
         const text = inputText.value;
         inputText.value = text.replace(/(^|[.!?]\s+)([a-z])/g, (match, prefix, char) => prefix + char.toUpperCase());
         updateTextStats();
     });
 
     trimWhitespaceButton.addEventListener('click', () => {
+        addButtonEffect(trimWhitespaceButton);
         const text = inputText.value;
         inputText.value = text.trim();
         updateTextStats();
@@ -365,6 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add event listener for the combined processing button
     processCombinedButton.addEventListener('click', () => {
+        addButtonEffect(processCombinedButton);
         const text = inputText.value;
         inputText.value = processCombined(text);
         updateTextStats();
@@ -372,6 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Thêm event listener cho nút xóa khoảng trắng trong mỗi dòng
     removeSpacesInLinesButton.addEventListener('click', () => {
+        addButtonEffect(removeSpacesInLinesButton);
         const text = inputText.value;
         inputText.value = removeSpacesInLines(text);
         updateTextStats();
@@ -448,7 +527,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleNoteAction(e) {
         const action = e.target.dataset.action;
         const index = parseInt(e.target.dataset.index);
-        
+
+        // Add button effect for all note action buttons
+        addButtonEffect(e.target);
+
         if (action === 'copy') {
             copyNote(index);
         } else if (action === 'edit') {
@@ -550,7 +632,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // Event listeners
-    addNoteBtn.addEventListener('click', addNote);
+    addNoteBtn.addEventListener('click', () => {
+        addButtonEffect(addNoteBtn);
+        addNote();
+    });
     
     noteInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && e.ctrlKey) {

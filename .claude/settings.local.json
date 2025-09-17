@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(rm:*)",
-      "Bash(dir)"
+      "Bash(dir)",
+      "Bash(node:*)"
     ],
     "deny": []
   }
