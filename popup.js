@@ -215,12 +215,35 @@ document.addEventListener('DOMContentLoaded', function () {
     function convertLocalToGithubPages(text) {
         const lines = text.split('\n');
         const convertedLines = lines.map(line => {
-            const trimmedLine = line.trim();
+            let trimmedLine = line.trim();
 
-            // Check if line contains a local Windows file path
+            // Remove surrounding quotes if present
+            if ((trimmedLine.startsWith('"') && trimmedLine.endsWith('"')) ||
+                (trimmedLine.startsWith("'") && trimmedLine.endsWith("'"))) {
+                trimmedLine = trimmedLine.slice(1, -1);
+            }
+
+            // Check if line contains a local Windows file path or file:/// URL
             const localPathRegex = /^[A-Z]:\\.*$/;
+            const fileUrlRegex = /^file:\/\/\/[A-Z]:\/.*$/;
+
+            let actualPath = '';
+            let isFileUrl = false;
 
             if (localPathRegex.test(trimmedLine)) {
+                actualPath = trimmedLine;
+            } else if (fileUrlRegex.test(trimmedLine)) {
+                // Convert file:/// URL to Windows path
+                // file:///D:/path/file -> D:\path\file
+                actualPath = trimmedLine
+                    .replace(/^file:\/\/\//, '')  // Remove file:/// prefix
+                    .replace(/\//g, '\\')         // Convert / to \
+                    .replace(/%20/g, ' ')         // Decode %20 to spaces
+                    .replace(/%([0-9A-F]{2})/gi, (match, hex) => String.fromCharCode(parseInt(hex, 16))); // Decode other URL encoding
+                isFileUrl = true;
+            }
+
+            if (actualPath) {
                 // Map local paths to GitHub Pages URLs
                 const pathMappings = {
                     'D:\\pcloud\\code\\ai\\experts\\': 'https://nguyendinhquocx.github.io/Prompt-AI/',
@@ -230,9 +253,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Find matching path mapping
                 for (const [localPath, githubPagesUrl] of Object.entries(pathMappings)) {
-                    if (trimmedLine.startsWith(localPath)) {
+                    if (actualPath.startsWith(localPath)) {
                         // Extract relative path after the mapped local path
-                        const relativePath = trimmedLine.substring(localPath.length);
+                        const relativePath = actualPath.substring(localPath.length);
 
                         // URL encode the relative path to handle spaces and special characters
                         const encodedPath = relativePath.split('\\')
@@ -247,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return `${line} // No mapping found for this path`;
             }
 
-            return line; // Return original line if not a local path
+            return line; // Return original line if not a local path or file URL
         });
 
         return convertedLines.join('\n');
