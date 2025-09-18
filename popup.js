@@ -211,6 +211,48 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Function to convert local file path to GitHub Pages link
+    function convertLocalToGithubPages(text) {
+        const lines = text.split('\n');
+        const convertedLines = lines.map(line => {
+            const trimmedLine = line.trim();
+
+            // Check if line contains a local Windows file path
+            const localPathRegex = /^[A-Z]:\\.*$/;
+
+            if (localPathRegex.test(trimmedLine)) {
+                // Map local paths to GitHub Pages URLs
+                const pathMappings = {
+                    'D:\\pcloud\\code\\ai\\experts\\': 'https://nguyendinhquocx.github.io/Prompt-AI/',
+                    'D:\\pcloud\\code\\extension\\vietnamese text converter\\': 'https://nguyendinhquocx.github.io/vietnamese-text-converter/',
+                    // Add more mappings as needed
+                };
+
+                // Find matching path mapping
+                for (const [localPath, githubPagesUrl] of Object.entries(pathMappings)) {
+                    if (trimmedLine.startsWith(localPath)) {
+                        // Extract relative path after the mapped local path
+                        const relativePath = trimmedLine.substring(localPath.length);
+
+                        // URL encode the relative path to handle spaces and special characters
+                        const encodedPath = relativePath.split('\\')
+                            .map(segment => encodeURIComponent(segment))
+                            .join('/');
+
+                        return githubPagesUrl + encodedPath;
+                    }
+                }
+
+                // If no mapping found, return original line with a note
+                return `${line} // No mapping found for this path`;
+            }
+
+            return line; // Return original line if not a local path
+        });
+
+        return convertedLines.join('\n');
+    }
+
     // Function to convert GitHub link to GitHub Pages link
     function convertGithubToPages(text) {
         const lines = text.split('\n');
@@ -293,12 +335,15 @@ document.addEventListener('DOMContentLoaded', function () {
         // Create Github button
         const githubButton = `<button class="download-btn github-btn" data-action="github">Github</button>`;
 
+        // Create GithubX button
+        const githubXButton = `<button class="download-btn githubx-btn" data-action="githubx">GithubX</button>`;
+
         const downloadButtons = downloadFormats.map(format =>
             `<button class="download-btn" data-format="${format}">${format}</button>`
         ).join('');
 
         suggestionsContainer.innerHTML = `
-            <div class="suggestions-list">${csvToJsonButton}${copyButton}${githubButton}${downloadButtons}</div>
+            <div class="suggestions-list">${csvToJsonButton}${copyButton}${githubButton}${githubXButton}${downloadButtons}</div>
         `;
 
         // Add event listeners to download buttons
@@ -381,6 +426,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     } catch (e) {
                         console.warn('Failed to save to localStorage:', e);
                     }
+                }
+            });
+        }
+
+        // Add event listener for GithubX button
+        const githubXBtn = suggestionsContainer.querySelector('[data-action="githubx"]');
+        if (githubXBtn) {
+            githubXBtn.addEventListener('click', () => {
+                const originalText = inputText.value;
+                if (originalText.trim()) {
+                    const convertedText = convertLocalToGithubPages(originalText);
+
+                    // Copy converted text to clipboard only
+                    navigator.clipboard.writeText(convertedText).catch(err => {
+                        console.error('Copy failed:', err);
+                    });
+
+                    // Add button effect
+                    addButtonEffect(githubXBtn);
                 }
             });
         }
