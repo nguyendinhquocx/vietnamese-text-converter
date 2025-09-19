@@ -450,4 +450,41 @@ button:active {
     white-space: nowrap;
 }
 
-/* Removed input-group styles as they are no longer needed */
+/* Random ID section */
+.random-id-section {
+    margin-top: 24px;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.random-id-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.id-length-input, .id-count-input {
+    width: 50%;
+    max-width: 200px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', 'Menlo', 'Consolas', 'Source Code Pro', 'Fira Mono', 'Monaco', 'Courier New', monospace;
+    transition: background-color 0.2s ease;
+    text-align: center;
+}
+
+.id-length-input:hover, .id-count-input:hover {
+    background-color: #f8f8f8;
+}
+
+.id-length-input:focus, .id-count-input:focus {
+    background-color: #ffffff;
+    outline: none;
+}

@@ -833,4 +833,74 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Random ID functionality
+    const idLengthInput = document.getElementById('idLengthInput');
+    const idCountInput = document.getElementById('idCountInput');
+
+    // Function to generate random character from [A-Z][a-z][0-9] (Apps Script style)
+    function randomCharAZaz09() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    // Function to generate unique ID with specified length
+    function generateUniqueId(length = 10) {
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += randomCharAZaz09();
+        }
+        return result;
+    }
+
+    // Function to generate multiple IDs
+    function generateMultipleIds() {
+        const length = parseInt(idLengthInput.value) || 10;
+        const count = parseInt(idCountInput.value) || 1;
+
+        if (count <= 0 || length <= 0) {
+            alert('Vui lòng nhập số dương!');
+            return;
+        }
+
+        if (count > 1000) {
+            alert('Số lượng ID tối đa là 1000!');
+            return;
+        }
+
+        if (length > 50) {
+            alert('Độ dài ID tối đa là 50 ký tự!');
+            return;
+        }
+
+        const ids = [];
+        for (let i = 0; i < count; i++) {
+            ids.push(generateUniqueId(length));
+        }
+
+        // Insert IDs into textarea (replace current content)
+        inputText.value = ids.join('\n');
+        updateTextStats();
+        displayDownloadOptions();
+
+        // Save to localStorage
+        try {
+            const idsText = ids.join('\n');
+            if (idsText.length < 1000000) {
+                localStorage.setItem('textContent', idsText);
+            }
+        } catch (e) {
+            console.warn('Failed to save to localStorage:', e);
+        }
+
+        // Clear the count input after generation
+        idCountInput.value = '';
+    }
+
+    // Enter key support for Random ID
+    idCountInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            generateMultipleIds();
+        }
+    });
+
 });
