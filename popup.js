@@ -13,6 +13,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const processCombinedButton = document.getElementById('processCombined');
     const copyTextButton = document.getElementById('copyText');
 
+    // Focus Timer Constants
+    const FOCUS_PRESETS = [15, 30, 45, 60, 75, 90, 120]; // minutes
+    const TIMER_STORAGE_KEY = 'focusTimerState';
+
+    // Timer Elements
+    const timerStatus = document.getElementById('timerStatus');
+    const timerTime = document.getElementById('timerTime');
+    const timerPlay = document.getElementById('timerPlay');
+    const timerPause = document.getElementById('timerPause');
+    const timerReset = document.getElementById('timerReset');
+    const focusSlider = document.getElementById('focusSlider');
+    const focusLabel = document.getElementById('focusLabel');
+    const timerCircleProgress = document.querySelector('.timer-circle-progress');
+
+    // Timer State
+    let timerState = {
+        isRunning: false,
+        isPaused: false,
+        currentTime: 30 * 60, // seconds (default 30 min - FOCUS_PRESETS[1])
+        totalTime: 30 * 60,
+        selectedPreset: 1, // index in FOCUS_PRESETS (default 30 min)
+        intervalId: null
+    };
+
     // Find and Replace elements
     const findInput = document.getElementById('findInput');
     const replaceInput = document.getElementById('replaceInput');
@@ -901,6 +925,315 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.key === 'Enter') {
             generateMultipleIds();
         }
+    });
+
+    // ============================================
+    // FOCUS TIMER FUNCTIONALITY
+    // ============================================
+
+    // Load timer state from chrome.storage and sync with background
+    async function loadTimerState() {
+        try {
+            // First try chrome.storage.local (priority)
+            if (chrome && chrome.storage) {
+                const result = await chrome.storage.local.get(TIMER_STORAGE_KEY);
+                if (result[TIMER_STORAGE_KEY]) {
+                    const savedState = result[TIMER_STORAGE_KEY];
+                    timerState = { ...timerState, ...savedState };
+                    timerState.intervalId = null;
+                }
+            } else {
+                // Fallback to localStorage
+                const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+                if (saved) {
+                    const savedState = JSON.parse(saved);
+                    timerState = { ...timerState, ...savedState };
+                    timerState.intervalId = null;
+                }
+            }
+
+            // Sync with background service
+            syncWithBackgroundService();
+        } catch (e) {
+            console.warn('Failed to load timer state:', e);
+        }
+    }
+
+    // Save timer state to storage (both chrome.storage and localStorage)
+    async function saveTimerState() {
+        try {
+            const stateToSave = { ...timerState };
+            delete stateToSave.intervalId; // Don't save interval ID
+
+            // Save to chrome.storage.local (priority)
+            if (chrome && chrome.storage) {
+                await chrome.storage.local.set({ [TIMER_STORAGE_KEY]: stateToSave });
+            }
+
+            // Also save to localStorage as backup
+            localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(stateToSave));
+        } catch (e) {
+            console.warn('Failed to save timer state:', e);
+        }
+    }
+
+    // Sync with background service
+    function syncWithBackgroundService() {
+        if (!chrome || !chrome.runtime) return;
+
+        chrome.runtime.sendMessage({
+            action: 'getTimerState'
+        }, (response) => {
+            if (response && response.success && response.state) {
+                // Update local state with background state
+                const bgState = response.state;
+                timerState.isRunning = bgState.isRunning;
+                timerState.currentTime = bgState.currentTime;
+                timerState.totalTime = bgState.totalTime;
+
+                updateTimerDisplay();
+            }
+        });
+    }
+
+    // Listen for background timer updates
+    function setupBackgroundListener() {
+        if (!chrome || !chrome.runtime) return;
+
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.action === 'timerStateUpdate' && message.state) {
+                const bgState = message.state;
+                timerState.isRunning = bgState.isRunning;
+                timerState.currentTime = bgState.currentTime;
+                timerState.totalTime = bgState.totalTime;
+
+                updateTimerDisplay();
+                saveTimerState();
+            }
+        });
+    }
+
+    // Get preset minutes from slider value
+    function getPresetMinutes(sliderValue) {
+        return FOCUS_PRESETS[sliderValue] || 30;
+    }
+
+    // Format time display (MM:SS)
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // Update timer display
+    function updateTimerDisplay() {
+        timerTime.textContent = formatTime(timerState.currentTime);
+
+        // Update status
+        if (timerState.isRunning) {
+            timerStatus.textContent = 'Đang tập trung';
+        } else if (timerState.isPaused) {
+            timerStatus.textContent = 'Tạm dừng';
+        } else if (timerState.currentTime <= 0) {
+            timerStatus.textContent = 'Hoàn thành';
+        } else {
+            timerStatus.textContent = 'Tập trung';
+        }
+
+        // Update circle progress
+        updateCircleProgress();
+
+        // Update UI buttons
+        updateTimerButtons();
+    }
+
+    // Update circle progress
+    function updateCircleProgress() {
+        if (timerState.totalTime <= 0) return;
+
+        const circumference = 2 * Math.PI * 120; // r = 120
+        const progress = (timerState.totalTime - timerState.currentTime) / timerState.totalTime;
+        const offset = circumference * (1 - progress);
+
+        timerCircleProgress.style.strokeDashoffset = offset;
+    }
+
+    // Update timer button visibility
+    function updateTimerButtons() {
+        if (timerState.isRunning) {
+            timerPlay.style.display = 'none';
+            timerPause.style.display = 'flex';
+        } else {
+            timerPlay.style.display = 'flex';
+            timerPause.style.display = 'none';
+        }
+    }
+
+    // Update preset display
+    function updatePresetDisplay() {
+        const minutes = getPresetMinutes(timerState.selectedPreset);
+        focusLabel.textContent = `${minutes} phút`;
+        focusSlider.value = timerState.selectedPreset;
+    }
+
+    // Start timer (now delegates to background service)
+    function startTimer() {
+        if (timerState.currentTime <= 0) return;
+
+        timerState.isRunning = true;
+        timerState.isPaused = false;
+
+        // Send message to background service
+        chrome.runtime.sendMessage({
+            action: 'startTimer',
+            currentTime: timerState.currentTime,
+            totalTime: timerState.totalTime
+        }, (response) => {
+            if (response && response.success) {
+                console.log('Timer started in background');
+            } else {
+                console.error('Failed to start background timer');
+                // Fallback to local timer
+                startLocalTimer();
+            }
+        });
+
+        updateTimerDisplay();
+        saveTimerState();
+        addButtonEffect(timerPlay);
+    }
+
+    // Pause timer (now delegates to background service)
+    function pauseTimer() {
+        timerState.isRunning = false;
+        timerState.isPaused = true;
+
+        // Send message to background service
+        chrome.runtime.sendMessage({
+            action: 'pauseTimer'
+        }, (response) => {
+            if (response && response.success) {
+                console.log('Timer paused in background');
+            } else {
+                console.error('Failed to pause background timer');
+            }
+        });
+
+        // Clear local interval if any
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+            timerState.intervalId = null;
+        }
+
+        updateTimerDisplay();
+        saveTimerState();
+        addButtonEffect(timerPause);
+    }
+
+    // Fallback local timer (if background service fails)
+    function startLocalTimer() {
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+        }
+
+        timerState.intervalId = setInterval(() => {
+            timerState.currentTime--;
+            updateTimerDisplay();
+            saveTimerState();
+
+            // Timer completed
+            if (timerState.currentTime <= 0) {
+                completeTimer();
+            }
+        }, 1000);
+    }
+
+    // Reset timer (now delegates to background service)
+    function resetTimer() {
+        timerState.isRunning = false;
+        timerState.isPaused = false;
+
+        // Clear local interval if any
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+            timerState.intervalId = null;
+        }
+
+        const minutes = getPresetMinutes(timerState.selectedPreset);
+        timerState.currentTime = minutes * 60;
+        timerState.totalTime = minutes * 60;
+
+        // Send reset message to background service
+        chrome.runtime.sendMessage({
+            action: 'resetTimer',
+            totalTime: timerState.totalTime
+        }, (response) => {
+            if (response && response.success) {
+                console.log('Timer reset in background');
+            } else {
+                console.error('Failed to reset background timer');
+            }
+        });
+
+        updateTimerDisplay();
+        saveTimerState();
+        addButtonEffect(timerReset);
+    }
+
+    // Complete timer
+    function completeTimer() {
+        timerState.isRunning = false;
+        timerState.isPaused = false;
+        timerState.currentTime = 0;
+
+        if (timerState.intervalId) {
+            clearInterval(timerState.intervalId);
+            timerState.intervalId = null;
+        }
+
+        updateTimerDisplay();
+        saveTimerState();
+
+        // Show completion notification (silent)
+        if (chrome && chrome.notifications) {
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'images/icon.png',
+                title: 'Focus Timer',
+                message: 'Timer hoàn thành! Giờ nghỉ ngơi nhé.',
+                silent: true
+            });
+        }
+    }
+
+    // Handle preset slider change
+    function handlePresetChange() {
+        const newPreset = parseInt(focusSlider.value);
+        timerState.selectedPreset = newPreset;
+
+        // Reset timer với preset mới nếu không đang chạy
+        if (!timerState.isRunning) {
+            const minutes = getPresetMinutes(newPreset);
+            timerState.currentTime = minutes * 60;
+            timerState.totalTime = minutes * 60;
+        }
+
+        updatePresetDisplay();
+        updateTimerDisplay();
+        saveTimerState();
+    }
+
+    // Timer Event Listeners
+    timerPlay.addEventListener('click', startTimer);
+    timerPause.addEventListener('click', pauseTimer);
+    timerReset.addEventListener('click', resetTimer);
+    focusSlider.addEventListener('input', handlePresetChange);
+
+    // Initialize timer with background sync
+    setupBackgroundListener();
+    loadTimerState().then(() => {
+        updatePresetDisplay();
+        updateTimerDisplay();
     });
 
 });
