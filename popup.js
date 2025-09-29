@@ -992,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 timerState.totalTime = bgState.totalTime;
 
                 updateTimerDisplay();
+                updateTimerButtons(); // Fix: Update button states when syncing with background
             }
         });
     }
@@ -1008,6 +1009,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 timerState.totalTime = bgState.totalTime;
 
                 updateTimerDisplay();
+                updateTimerButtons(); // Fix: Update button states when receiving background updates
                 saveTimerState();
             }
         });
@@ -1176,6 +1178,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         updateTimerDisplay();
+        updateTimerButtons(); // Fix: Update button states after reset
         saveTimerState();
         addButtonEffect(timerReset);
     }
@@ -1192,6 +1195,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         updateTimerDisplay();
+        updateTimerButtons(); // Fix: Update button states when timer completes
         saveTimerState();
 
         // Show completion notification (silent)
