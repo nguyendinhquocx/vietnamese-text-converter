@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const inputText = document.getElementById('inputText');
+    const subText = document.getElementById('subText');
     const charCount = document.getElementById('charCount');
     const wordCount = document.getElementById('wordCount');
     const pasteButton = document.getElementById('paste');
@@ -57,21 +58,27 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Load saved text content from localStorage
+    // Load saved text content from localStorage (main textarea)
     const savedText = localStorage.getItem('textContent');
     if (savedText) {
         inputText.value = savedText;
         updateTextStats();
         displayDownloadOptions(); // Show download options if there's saved text
     }
-    
+
+    // Load saved sub text content from localStorage
+    const savedSubText = localStorage.getItem('subTextContent');
+    if (savedSubText) {
+        subText.value = savedSubText;
+    }
+
     // Save text content to localStorage when it changes (with size limit check)
     inputText.addEventListener('input', () => {
         updateTextStats();
-        
+
         // Display download options
         displayDownloadOptions();
-        
+
         // Save current text to localStorage with size check
         const textToSave = inputText.value;
         try {
@@ -83,6 +90,20 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (e) {
             console.warn('Failed to save to localStorage:', e);
+        }
+    });
+
+    // Save sub text content to localStorage when it changes
+    subText.addEventListener('input', () => {
+        const subTextToSave = subText.value;
+        try {
+            if (subTextToSave.length < 1000000) {
+                localStorage.setItem('subTextContent', subTextToSave);
+            } else {
+                console.warn('Sub text too large for localStorage, skipping save');
+            }
+        } catch (e) {
+            console.warn('Failed to save sub text to localStorage:', e);
         }
     });
     
