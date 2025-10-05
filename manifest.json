@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Note + Focus Timer",
+  "name": "Note",
   "version": "2.0",
   "description": "Chuyển đổi văn bản tiếng Việt và timer tập trung tối giản - Vietnamese text converter with minimalist focus timer",
   "side_panel": {

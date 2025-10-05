@@ -342,6 +342,22 @@ document.addEventListener('DOMContentLoaded', function () {
         return convertedLines.join('\n');
     }
 
+    // Function to sanitize filename
+    function sanitizeFilename(text) {
+        if (!text || !text.trim()) return 'document';
+
+        // Take first line or first 50 chars, remove special chars
+        let filename = text.trim().split('\n')[0].substring(0, 50);
+
+        // Replace invalid filename chars with underscore
+        filename = filename.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+
+        // Remove leading/trailing spaces and dots
+        filename = filename.trim().replace(/^\.+|\.+$/g, '');
+
+        return filename || 'document';
+    }
+
     // Function to download file with specified format
     function downloadFile(content, format) {
         if (!content.trim()) {
@@ -366,8 +382,11 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         const extension = fileExtensions[format] || 'txt';
-        const fileName = `document.${extension}`;
-        
+
+        // Use subText content as filename if available
+        const customFilename = sanitizeFilename(subText.value);
+        const fileName = `${customFilename}.${extension}`;
+
         // Create blob and download
         const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
