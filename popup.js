@@ -376,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'TS': 'ts',
             'PY': 'py',
             'SQL': 'sql',
-            'XML': 'xml',
             'PHP': 'php',
             'CSV': 'csv'
         };
@@ -403,34 +402,38 @@ document.addEventListener('DOMContentLoaded', function () {
     function displayDownloadOptions() {
         const suggestionsContainer = document.getElementById('languageSuggestions');
         const content = inputText.value.trim();
-        
+
         if (!content) {
             suggestionsContainer.style.display = 'none';
             return;
         }
 
         suggestionsContainer.style.display = 'block';
-        
-        const downloadFormats = ['JSON', 'TXT', 'JS', 'HTML', 'CSS', 'MD', 'TS', 'TSX', 'PY', 'SQL', 'XML', 'PHP', 'CSV'];
 
-        // Create CSV → JSON converter button first
-        const csvToJsonButton = `<button class="download-btn csv-to-json-btn" data-action="csvToJson">CSV → JSON</button>`;
+        // Button order: CLEAR → COPY → HTML → MD → Github → JSON → TXT → GithubX → others → CSV→JSON
+        const buttons = [];
 
-        // Create Copy button
-        const copyButton = `<button class="download-btn copy-all-btn" data-action="copyAll">COPY</button>`;
+        // Priority buttons (in order)
+        buttons.push(`<button class="download-btn clear-btn" data-action="clear">CLEAR</button>`);
+        buttons.push(`<button class="download-btn copy-all-btn" data-action="copyAll">COPY</button>`);
+        buttons.push(`<button class="download-btn" data-format="HTML">HTML</button>`);
+        buttons.push(`<button class="download-btn" data-format="MD">MD</button>`);
+        buttons.push(`<button class="download-btn github-btn" data-action="github">Github</button>`);
+        buttons.push(`<button class="download-btn" data-format="JSON">JSON</button>`);
+        buttons.push(`<button class="download-btn" data-format="TXT">TXT</button>`);
+        buttons.push(`<button class="download-btn githubx-btn" data-action="githubx">GithubX</button>`);
 
-        // Create Github button
-        const githubButton = `<button class="download-btn github-btn" data-action="github">Github</button>`;
+        // Other formats (removed XML)
+        const otherFormats = ['JS', 'CSS', 'TS', 'TSX', 'PY', 'SQL', 'PHP', 'CSV'];
+        otherFormats.forEach(format => {
+            buttons.push(`<button class="download-btn" data-format="${format}">${format}</button>`);
+        });
 
-        // Create GithubX button
-        const githubXButton = `<button class="download-btn githubx-btn" data-action="githubx">GithubX</button>`;
-
-        const downloadButtons = downloadFormats.map(format =>
-            `<button class="download-btn" data-format="${format}">${format}</button>`
-        ).join('');
+        // CSV → JSON converter (last)
+        buttons.push(`<button class="download-btn csv-to-json-btn" data-action="csvToJson">CSV → JSON</button>`);
 
         suggestionsContainer.innerHTML = `
-            <div class="suggestions-list">${csvToJsonButton}${copyButton}${githubButton}${githubXButton}${downloadButtons}</div>
+            <div class="suggestions-list">${buttons.join('')}</div>
         `;
 
         // Add event listeners to download buttons
@@ -533,6 +536,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Add button effect
                     addButtonEffect(githubXBtn);
                 }
+            });
+        }
+
+        // Add event listener for CLEAR button
+        const clearBtn = suggestionsContainer.querySelector('[data-action="clear"]');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                // Clear both textareas
+                inputText.value = '';
+                subText.value = '';
+
+                // Update stats and hide download options
+                updateTextStats();
+                displayDownloadOptions();
+
+                // Clear localStorage
+                localStorage.removeItem('textContent');
+                localStorage.removeItem('subTextContent');
+
+                // Add button effect
+                addButtonEffect(clearBtn);
             });
         }
     }
