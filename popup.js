@@ -346,8 +346,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function sanitizeFilename(text) {
         if (!text || !text.trim()) return 'document';
 
-        // Take first line or first 50 chars, remove special chars
-        let filename = text.trim().split('\n')[0].substring(0, 50);
+        // Take first line or first 150 chars, remove special chars
+        let filename = text.trim().split('\n')[0].substring(0, 150);
 
         // Replace invalid filename chars with underscore
         filename = filename.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
