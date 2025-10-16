@@ -346,13 +346,26 @@ document.addEventListener('DOMContentLoaded', function () {
     function sanitizeFilename(text) {
         if (!text || !text.trim()) return 'document';
 
-        // Take first line or first 150 chars, remove special chars
+        // Take first line or first 150 chars
         let filename = text.trim().split('\n')[0].substring(0, 150);
 
-        // Replace invalid filename chars with underscore
+        // Vietnamese text processing
+        // 1. Remove Vietnamese accents
+        filename = removeVietnameseAccents(filename);
+
+        // 2. Convert to lowercase
+        filename = filename.toLowerCase();
+
+        // 3. Trim whitespace
+        filename = filename.trim();
+
+        // 4. Remove double spaces (normalize to single space)
+        filename = filename.replace(/\s+/g, ' ');
+
+        // 5. Replace invalid filename chars with underscore
         filename = filename.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
 
-        // Remove leading/trailing spaces and dots
+        // 6. Remove leading/trailing spaces and dots
         filename = filename.trim().replace(/^\.+|\.+$/g, '');
 
         return filename || 'document';
