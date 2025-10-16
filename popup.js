@@ -356,17 +356,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // 2. Convert to lowercase
         filename = filename.toLowerCase();
 
-        // 3. Trim whitespace
+        // 3. Remove all special characters (keep only alphanumeric and spaces)
+        filename = filename.replace(/[^a-z0-9\s]/g, '');
+
+        // 4. Trim whitespace
         filename = filename.trim();
 
-        // 4. Remove double spaces (normalize to single space)
+        // 5. Remove double spaces (normalize to single space)
         filename = filename.replace(/\s+/g, ' ');
 
-        // 5. Replace invalid filename chars with underscore
-        filename = filename.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
-
-        // 6. Remove leading/trailing spaces and dots
-        filename = filename.trim().replace(/^\.+|\.+$/g, '');
+        // 6. Remove leading/trailing spaces
+        filename = filename.trim();
 
         return filename || 'document';
     }
@@ -382,14 +382,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'TXT': 'txt',
             'JS': 'js',
             'HTML': 'html',
-            'CSS': 'css',
             'JSON': 'json',
             'MD': 'md',
-            'TSX': 'tsx',
-            'TS': 'ts',
             'PY': 'py',
             'SQL': 'sql',
-            'PHP': 'php',
             'CSV': 'csv'
         };
 
@@ -423,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         suggestionsContainer.style.display = 'block';
 
-        // Button order: CLEAR → COPY → HTML → MD → Github → JSON → TXT → GithubX → others → CSV→JSON
+        // Button order: CLEAR → COPY → HTML → MD → Github → JSON → TXT → GithubX → others → CSV→JSON → Tổng
         const buttons = [];
 
         // Priority buttons (in order)
@@ -436,14 +432,17 @@ document.addEventListener('DOMContentLoaded', function () {
         buttons.push(`<button class="download-btn" data-format="TXT">TXT</button>`);
         buttons.push(`<button class="download-btn githubx-btn" data-action="githubx">GithubX</button>`);
 
-        // Other formats (removed XML)
-        const otherFormats = ['JS', 'CSS', 'TS', 'TSX', 'PY', 'SQL', 'PHP', 'CSV'];
+        // Other formats (removed CSS, TS, TSX, PHP)
+        const otherFormats = ['JS', 'PY', 'SQL', 'CSV'];
         otherFormats.forEach(format => {
             buttons.push(`<button class="download-btn" data-format="${format}">${format}</button>`);
         });
 
-        // CSV → JSON converter (last)
+        // CSV → JSON converter
         buttons.push(`<button class="download-btn csv-to-json-btn" data-action="csvToJson">CSV → JSON</button>`);
+
+        // Tổng button for subText processing (last)
+        buttons.push(`<button class="download-btn process-subtext-btn" data-action="processSubText">Tổng</button>`);
 
         suggestionsContainer.innerHTML = `
             <div class="suggestions-list">${buttons.join('')}</div>
@@ -570,6 +569,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Add button effect
                 addButtonEffect(clearBtn);
+            });
+        }
+
+        // Add event listener for Tổng button (process subText)
+        const processSubTextBtn = suggestionsContainer.querySelector('[data-action="processSubText"]');
+        if (processSubTextBtn) {
+            processSubTextBtn.addEventListener('click', () => {
+                const originalText = subText.value;
+                if (originalText.trim()) {
+                    // Process subText: remove accents → lowercase → remove special chars → trim → remove double spaces
+                    let processedText = removeVietnameseAccents(originalText);
+                    processedText = processedText.toLowerCase();
+                    // Remove all special characters (keep only alphanumeric and spaces)
+                    processedText = processedText.replace(/[^a-z0-9\s]/g, '');
+                    processedText = processedText.trim();
+                    processedText = processedText.replace(/\s+/g, ' ');
+
+                    // Update subText with processed text
+                    subText.value = processedText;
+
+                    // Save to localStorage
+                    try {
+                        if (processedText.length < 1000000) {
+                            localStorage.setItem('subTextContent', processedText);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to save to localStorage:', e);
+                    }
+
+                    // Add button effect
+                    addButtonEffect(processSubTextBtn);
+                }
             });
         }
     }
