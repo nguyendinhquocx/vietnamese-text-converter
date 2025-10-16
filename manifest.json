@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Note",
   "version": "2.0",
-  "description": "Chuyển đổi văn bản tiếng Việt và timer tập trung tối giản - Vietnamese text converter with minimalist focus timer",
+  "description": "Chuyển đổi văn bản tiếng Việt - Vietnamese text converter",
   "side_panel": {
     "default_path": "popup.html"
   },
@@ -32,8 +32,7 @@
     "storage",
     "sidePanel",
     "contextMenus",
-    "downloads",
-    "notifications"
+    "downloads"
   ],
   "content_scripts": [
     {
